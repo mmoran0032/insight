@@ -1,0 +1,9 @@
+.ipynb_checkpoints
+__pycache__
+credentials.json
+
+# directories
+modern
+demographics
+other_data
+
