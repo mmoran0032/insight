@@ -3,10 +3,8 @@ __pycache__
 credentials.json
 
 # directories
-modern
 demographics
+modern
 other_data
-
-# external repos
-nyc-taxi-data
-
+raw_data
+stations
