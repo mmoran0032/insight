@@ -83,10 +83,10 @@ def load_old_turnstile(file):
 
 
 def reformat_old_frame(df):
+    df.dropna(inplace=True)
     df['date_time'] = pd.to_datetime(
         df.date + df.time, format='%m-%d-%y%H:%M:%S')
     df.drop(['date', 'time'], axis=1, inplace=True)
-    df.dropna(inplace=True)
     df.reset_index(drop=True, inplace=True)
     df.exits = pd.to_numeric(df.exits, errors='coerce')
     return df
