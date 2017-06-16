@@ -1,0 +1,79 @@
+body {
+    font-family: Helvetica, sans-serif;
+    font-size: 16pt;
+    margin: 0px;
+    align-items: center;
+    align-content: center;
+}
+canvas {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+.chart-container {
+    width: 500px;
+    height: 250px;
+    margin: 20px;
+}
+.container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    /*border: solid 2px black;*/
+}
+.main-content {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    min-width: 500px;
+    max-width: 1200px;
+    /*border: solid 2px black;*/
+    display: -webkit-flex;
+    display: block;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-align-content: center;
+    align-content: center;
+}
+.header-bar {
+    height: auto;
+    background-color: black;
+    align-content: center;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    font-size: 36pt;
+    padding: 10px;
+}
+.control-pane {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    min-width: 500px;
+    max-width: 1200px;
+    /*border: solid 2px black;*/
+    height: auto;
+    padding: 20px;
+    display: block;
+}
+
+/*floating stuff*/
+.content_left {
+    width: 40%;
+    max-width: 400px;
+    min-width: 100px;
+    float: left;
+    vertical-align: middle;
+    background-color: #eeeeee;
+    height: 100px;
+ }
+.content_right {
+    width: 40%;
+    max-width: 400px;
+    min-width: 10px;
+    float: right;
+    vertical-align: middle;
+    background-color: #eeeeee;
+    height: 100px;
+}

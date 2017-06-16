@@ -3,7 +3,6 @@ __pycache__
 credentials.json
 
 # directories
-demographics
 modern
 other_data
 processed_data
