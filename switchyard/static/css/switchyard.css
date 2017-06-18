@@ -4,24 +4,19 @@ body {
     margin: 0px;
     align-items: center;
     align-content: center;
+    min-width: 580px;
 }
 canvas {
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
+    min-width: 400px;
 }
 .chart-container {
     width: 500px;
     height: 500px;
     margin: 5px;
 }
-/*.container {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    border: solid 2px black;
-}*/
 .main-content {
     padding: 20px;
     min-width: 500px;
@@ -39,7 +34,7 @@ canvas {
 }
 .header-bar {
     height: 100px;
-    width: 100%;
+    width: inherit;
     background-color: black;
     align-content: center;
     text-align: center;
@@ -54,14 +49,17 @@ canvas {
     height: auto;
     padding: 20px;
     display: block;
-    width: 25%;
-    max-width: 400px;
-    min-width: 100px;
+    width: 350px;
     float: left;
     vertical-align: middle;
     height: auto;
 }
 .container {
-  width: 40%;
-  margin: 15px auto;
+    width: 450px;
+    margin: 15px auto;
+}
+.sub-station {
+    width: auto;
+    height: auto;
+    margin-bottom: 40px;
 }

@@ -11,10 +11,10 @@ import pandas as pd
 import psycopg2
 from sqlalchemy import create_engine
 
-from . import app
+from . import app, model
 
 
-def get_stations_associated_with_lines():
+def get_stations_associated_with_lines(conn):
     query = '''
         select unit, station, linename from details;
     '''
@@ -24,7 +24,7 @@ def get_stations_associated_with_lines():
     lines = [details.linename[details.unit == u].tolist() for u in units]
     lines = [''.join(sorted(list(set(''.join(l))))) for l in lines]
     details = list(zip(units, stations, lines))
-    details.sort(key=lambda x: x[2])
+    details.sort(key=lambda x: x[1])
     return details
 
 
@@ -34,8 +34,9 @@ dbname = 'fullstations'
 db = create_engine(f'postgres://{user}@{host}/{dbname}')
 conn = None
 conn = psycopg2.connect(database=dbname, user=user)
+model = model.Model(conn)
 
-details = get_stations_associated_with_lines()
+details = get_stations_associated_with_lines(conn)
 
 
 @app.route('/')
@@ -46,7 +47,6 @@ def index():
     unit = 'R001' if unit is None else unit
     index = 1 if index is None else index
     data = pull_data(unit)
-    data_2 = pull_data('R572')
     logo_file = get_random_logo()
     return render_template('index.html',
                            unit=unit,
@@ -54,16 +54,12 @@ def index():
                            details=details,
                            logo_file=logo_file,
                            data=data,
-                           data_2=data_2,
                            test_data=[1, 2, 3, 4, 5])
 
 
 def pull_data(unit):
-    query = '''
-        select * from {}
-            where date_time > '2016-06-01';
-    '''.format(unit)
-    data = pd.read_sql(query, conn)
+    data = model.load_data(unit, True)
+    print(data.head())
     return data
 
 

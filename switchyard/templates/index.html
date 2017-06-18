@@ -10,12 +10,14 @@
     <link rel="stylesheet" href="octicons/octicons.css">
     <meta name="viewport"
         content="width=device-width, initial-scale=1, user-scalable=no">
+    <script src="../static/js/Chart.min.js"></script>
+    <script src="../static/js/utils.js"></script>
 </head>
 
 <body>
     <div class="header-bar">
-        <!-- <img src="../static/images/{{logo_file}}" /> -->
-        <img src="../static/images/Switchyard.png" />
+        <img src="../static/images/{{logo_file}}" />
+        <!-- <img src="../static/images/Switchyard.png" /> -->
     </div>
 
     <div class="wrapper">
@@ -23,14 +25,35 @@
             <h1 id="station-name">Selected station:</h1>
             <select id="dropdown-stations">
                 {% for unit, station, line in details %}
-                <option value="{{unit}}">{{line}} | {{station}}</option>
+                <option value="{{unit}}">{{station}} | {{line}}</option>
                 {% endfor %}
             </select>
             <button type="button" onclick="submit()">SUBMIT</button><br>
+            <div class="container">
+                <div>
+                    <canvas id="main-station"></canvas>
+                </div>
+            </div>
         </header>
 
         <section>
             <!-- main station content goes here -->
+            <div class="sub-station">
+                <h2 id="sub-1">Station 1</h2>
+                Change: +0%
+            </div>
+            <div class="sub-station">
+                <h2 id="sub-2">Station 1</h2>
+                Change: +0%
+            </div>
+            <div class="sub-station">
+                <h2 id="sub-3">Station 1</h2>
+                Change: +0%
+            </div>
+            <div class="sub-station">
+                <h2 id="sub-4">Station 1</h2>
+                Change: +0%
+            </div>
         </section>
 
         <footer>
@@ -57,14 +80,45 @@
         return r;
     };
 
-    window.onload = function(){
+    window.onload = function() {
         var QueryString = getRequests();
         var i = QueryString["i"];
         var e = document.getElementById("dropdown-stations");
         e.selectedIndex = i;
         var station = e.options[i].text;
         document.getElementById("station-name").innerHTML =
-            'Selected station: ' + station;
+            'Selected station:<br />' + station;
+
+        Chart.defaults.global.legend.display = false;
+        // Chart.defaults.global.barPercentage = 1.0;
+        // Chart.defaults.global.categoryPercentage = 1.0;
+        var ctx = document.getElementById("main-station").getContext('2d');
+
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{data.date.values.tolist()|tojson}},
+                datasets: [{
+                    label: 'Entering Passengers',
+                    backgroundColor: "rgba(53,55,51,1)",
+                    data: {{data.enter.values.tolist()|tojson}},
+                },]
+                // }, {
+                //     label: 'Leaving Passengers',
+                //     backgroundColor: "rgba(255,153,0,1)",
+                //     data: {{data.exit.values.tolist()|tojson}},
+                // }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        display: false,
+                        categoryPercentage: 1.0,
+                        barPercentage: 1.0
+                    }]
+                }
+            }
+        });
     };
     </script>
 
