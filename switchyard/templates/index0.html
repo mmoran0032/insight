@@ -18,114 +18,127 @@
 
 <body>
     <div class="header-bar">
-        <img src="../static/{{logo_file}}" />
+        <img src="../static/images/{{logo_file}}" />
     </div>
 
     <div class="control-pane">
-        <div>
+        <div class="content_left">
             <h2 id="station-name">STATION</h2>
-            <!-- <button type="button" onclick="showName()">GET MY NAME</button> -->
-            <!-- <button type="button" onclick="clearName()">CLEAR MY NAME</button> -->
-            <!-- <select id="dropdown-lines" onchange="updateStationDropdown()">
-                {% for line in lines %}
-                    <option value="{{line}}">{{line}}</option>
-                {% endfor %}
-            </select> -->
             <select id="dropdown-stations">
                 {% for unit, station, line in details %}
                     <option value="{{unit}}">{{line}} | {{station}}</option>
                 {% endfor %}
             </select>
         </div>
-        <div>
-            <button type="button" onclick="submit()">SUBMIT</button>
+        <div class="content_right">
+            <button type="button" onclick="submit()">SUBMIT</button><br>
         </div>
     </div>
 
     <div class="main-content">
-    	<div class="container">
-    	</div>
+        <!-- <div class="container"> -->
+            <!-- -->
+<div class="container">
+<!-- <h2>Chart.js — Bar Chart Demo</h2> -->
+    <div>
+    <canvas id="myChart"></canvas>
+    </div>
+</div>
+<div class="container">
+<!-- <h2>Chart.js — Bar Chart Demo</h2> -->
+    <div>
+    <canvas id="myChart2"></canvas>
+    </div>
+</div>
+            <!-- -->
+        <!-- </div> -->
     </div>
     <script>
-    function showName() {
-        document.getElementById('name').innerHTML = "Mike Moran";
-    }
-    function clearName() {
-        document.getElementById('name').innerHTML = " ";
-    }
-    function updateStationDropdown() {
-        var e = document.getElementById("dropdown-lines");
-        var lineValue = e.options[e.selectedIndex].text;
-        // document.getElementById('station-name').innerHTML = strUser;
-    }
+    function submit() {
+        var e = document.getElementById("dropdown-stations");
+        var unit = e.options[e.selectedIndex].value;
+        window.location = '/index?i=' + e.selectedIndex + '&unit=' + unit;
+    };
 
-	function createConfig(details, data) {
-		return {
-			type: 'line',
-			data: {
-				labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6'],
-				datasets: [{
-					label: 'steppedLine: ' + ((typeof(details.steppedLine) === 'boolean') ? details.steppedLine : `'${details.steppedLine}'`),
-					steppedLine: details.steppedLine,
-					data: data,
-					borderColor: details.color,
-					fill: false,
-				}]
-			},
-			options: {
-				responsive: true,
-				title: {
-					display: true,
-					text: details.label,
-				}
-			}
-		};
-	}
+    function getRequests() {
+        var s1 = location.search.substring(1, location.search.length).split('&'),
+            r = {}, s2, i;
+        for (i = 0; i < s1.length; i += 1) {
+            s2 = s1[i].split('=');
+            r[decodeURIComponent(s2[0]).toLowerCase()] = decodeURIComponent(s2[1]);
+        }
+        return r;
+    };
 
+	// window.onload = function() {
+    //     var QueryString = getRequests();
+    //     var i = QueryString["i"];
+    //     var e = document.getElementById("dropdown-stations").selectedIndex = i;
+	// };
 
-	window.onload = function() {
-		var container = document.querySelector('.container');
+window.onload = function(){
+    var QueryString = getRequests();
+    var i = QueryString["i"];
+    var e = document.getElementById("dropdown-stations").selectedIndex = i;
+    var ctx = document.getElementById("myChart").getContext('2d');
+    var ctx2 = document.getElementById("myChart2").getContext('2d');
 
-		var data = [
-			randomScalingFactor(),
-			randomScalingFactor(),
-			randomScalingFactor(),
-			randomScalingFactor(),
-			randomScalingFactor(),
-			randomScalingFactor()
-		];
+    var original = Chart.defaults.global.legend.onClick;
+    Chart.defaults.global.legend.onClick = function(e, legendItem) {
+      update_caption(legendItem);
+      original.call(this, e, legendItem);
+    };
 
-		var steppedLineSettings = [{
-			steppedLine: false,
-			label: 'No Step Interpolation',
-			color: window.chartColors.red
-		}, {
-			steppedLine: true,
-			label: 'Step Before Interpolation',
-			color: window.chartColors.green
-		}, {
-			steppedLine: 'before',
-			label: 'Step Before Interpolation',
-			color: window.chartColors.green
-		}, {
-			steppedLine: 'after',
-			label: 'Step After Interpolation',
-			color: window.chartColors.purple
-		}];
+    var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: {{data.date_time.values.tolist()|tojson}},
+        datasets: [{
+          label: 'Entering Passengers',
+          backgroundColor: "rgba(153,255,51,1)",
+          data: {{data.enter.values.tolist()|tojson}},
+        }, {
+          label: 'Leaving Passengers',
+          backgroundColor: "rgba(255,153,0,1)",
+          data: {{data.exit.values.tolist()|tojson}},
+        }]
+      }
+    });
+    var myChart = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: {{data_2.date_time.values.tolist()|tojson}},
+        datasets: [{
+          label: 'Entering Passengers',
+          backgroundColor: "rgba(153,255,51,1)",
+          data: {{data_2.enter.values.tolist()|tojson}},
+        }, {
+          label: 'Leaving Passengers',
+          backgroundColor: "rgba(255,153,0,1)",
+          data: {{data_2.exit.values.tolist()|tojson}},
+        }]
+      }
+    });
 
-		steppedLineSettings.forEach(function(details) {
-			var div = document.createElement('div');
-			div.classList.add('chart-container');
+    var labels = {
+      "apples": true,
+      "oranges": true
+    };
 
-			var canvas = document.createElement('canvas');
-			div.appendChild(canvas);
-			container.appendChild(div);
+    var caption = document.getElementById("caption");
 
-			var ctx = canvas.getContext('2d');
-			var config = createConfig(details, data);
-			new Chart(ctx, config);
-		});
-	};
+    var update_caption = function(legend) {
+      labels[legend.text] = legend.hidden;
+
+      var selected = Object.keys(labels).filter(function(key) {
+        return labels[key];
+      });
+
+      var text = selected.length ? selected.join(" & ") : "nothing";
+
+      caption.innerHTML = "The chart is displaying " + text;
+    };
+}
     </script>
 </body>
 

@@ -1,60 +1,72 @@
-
 <!doctype html>
 <html>
-
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="Mike Moran">
-
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Switchyard</title>
-    <script src="../static/js/Chart.min.js"></script>
-    <script src="../static/js/utils.js"></script>
-    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="../static/css/switchyard.css">
+    <link rel="stylesheet" href="../static/css/from_github.css">
+    <link rel="stylesheet" href="../static/css/switchyard.css">
+    <!-- <link rel="stylesheet" href="stylesheets/pygment_trac.css"> -->
+    <link rel="stylesheet" href="octicons/octicons.css">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, user-scalable=no">
 </head>
 
 <body>
     <div class="header-bar">
-        <img src="../static/{{logo_file}}" />
+        <!-- <img src="../static/images/{{logo_file}}" /> -->
+        <img src="../static/images/Switchyard.png" />
     </div>
 
-    <div class="control-pane">
-        <div class="content_left">
-            <h2 id="station-name">STATION</h2>
-            <!-- <button type="button" onclick="showName()">GET MY NAME</button> -->
-            <!-- <button type="button" onclick="clearName()">CLEAR MY NAME</button> -->
-            <!-- <select id="dropdown-lines" onchange="updateStationDropdown()">
-                {% for line in lines %}
-                    <option value="{{line}}">{{line}}</option>
-                {% endfor %}
-            </select> -->
+    <div class="wrapper">
+        <header>
+            <h1 id="station-name">Selected station:</h1>
             <select id="dropdown-stations">
                 {% for unit, station, line in details %}
-                    <option value="{{unit}}">{{line}} | {{station}}</option>
+                <option value="{{unit}}">{{line}} | {{station}}</option>
                 {% endfor %}
             </select>
-        </div>
-        <div class="content_right">
-            <button type="button" onclick="submit()">SUBMIT</button>
-        </div>
-    </div>
+            <button type="button" onclick="submit()">SUBMIT</button><br>
+        </header>
 
-    <div class="main-content">
-    	<div class="container">
-    	</div>
+        <section>
+            <!-- main station content goes here -->
+        </section>
+
+        <footer>
+            <p><small>Created as part of my Insight Data Science
+                (NYC Summer 2017) project</small></p>
+        </footer>
     </div>
+    <script src="../static/js/scale.fix.js"></script>
     <script>
-    function updateStationDropdown() {
-        var e = document.getElementById("dropdown-station");
-        var lineValue = e.options[e.selectedIndex].text;
-        // document.getElementById('station-name').innerHTML = strUser;
-    }
+    function submit() {
+        var e = document.getElementById("dropdown-stations");
+        var unit = e.options[e.selectedIndex].value;
+        window.location = '/index?i=' + e.selectedIndex + '&unit=' + unit;
+    };
 
-	
+    function getRequests() {
+        var s = location.search.substring(1, location.search.length).split('&');
+        var r = {}, s2, i;
+        for (i = 0; i < s.length; i += 1) {
+            s2 = s[i].split('=');
+            r[decodeURIComponent(s2[0]).toLowerCase()] =
+                decodeURIComponent(s2[1]);
+        }
+        return r;
+    };
+
+    window.onload = function(){
+        var QueryString = getRequests();
+        var i = QueryString["i"];
+        var e = document.getElementById("dropdown-stations");
+        e.selectedIndex = i;
+        var station = e.options[i].text;
+        document.getElementById("station-name").innerHTML =
+            'Selected station: ' + station;
+    };
     </script>
-</body>
 
+</body>
 </html>

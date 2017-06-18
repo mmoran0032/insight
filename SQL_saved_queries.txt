@@ -1,0 +1,10 @@
+select * from (
+    select * from r072
+        order by date_time desc
+        limit 5
+    ) as foo
+    order by date_time asc;
+
+    --  Takes the last five entries from 'r072' but returns them in the
+        correct date_time order
+
