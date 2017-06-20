@@ -16,8 +16,8 @@
 
 <body>
     <div class="header-bar">
-        <img src="../static/images/{{logo_file}}" />
-        <!-- <img src="../static/images/Switchyard.png" /> -->
+        <!-- <img src="../static/images/{{logo_file}}" /> -->
+        <img src="../static/images/Switchyard.png" />
     </div>
 
     <div class="wrapper">
@@ -100,7 +100,7 @@
                 labels: {{data.date.values.tolist()|tojson}},
                 datasets: [{
                     label: 'Entering Passengers',
-                    backgroundColor: "rgba(53,55,51,1)",
+                    backgroundColor: '{{color}}',
                     data: {{data.enter.values.tolist()|tojson}},
                 },]
                 // }, {

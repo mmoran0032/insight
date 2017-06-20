@@ -37,6 +37,8 @@ conn = psycopg2.connect(database=dbname, user=user)
 model = model.Model(conn)
 
 details = get_stations_associated_with_lines(conn)
+filename = f'{app.static_folder}/data/line_station_color_details.csv'
+details_df = pd.read_csv(filename).set_index('unit')
 
 
 @app.route('/')
@@ -46,7 +48,7 @@ def index():
     index = request.args.get('i')
     unit = 'R001' if unit is None else unit
     index = 1 if index is None else index
-    data = pull_data(unit)
+    data, color = pull_data(unit)
     logo_file = get_random_logo()
     return render_template('index.html',
                            unit=unit,
@@ -54,13 +56,14 @@ def index():
                            details=details,
                            logo_file=logo_file,
                            data=data,
-                           test_data=[1, 2, 3, 4, 5])
+                           color=color)
 
 
 def pull_data(unit):
     data = model.load_data(unit, True)
     print(data.head())
-    return data
+    color = details_df.loc[unit, 'color']
+    return data, color
 
 
 def get_random_logo():
