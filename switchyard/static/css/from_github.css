@@ -77,13 +77,14 @@ pre {
 
 table {
   width:100%;
-  border-collapse:collapse;
+  /*border-collapse:collapse;*/
+  border: 1px solid #000000;
 }
 
 th, td {
   text-align:left;
   padding:5px 10px;
-  border-bottom:1px solid #e5e5e5;
+  /*border-bottom:1px solid #e5e5e5;*/
 }
 
 dt {
@@ -111,7 +112,7 @@ strong {
 }
 
 section {
-  width: 350px;
+  width: 500px;
   float:right;
   padding-bottom:50px;
 }
@@ -134,50 +135,40 @@ footer {
   bottom:50px;
 }
 
-@media print, screen and (max-width: 960px) {
-/*@media print, screen and (max-width: 1250px) {*/
-
+/*@media print, screen and (max-width: 1500px) {
+@media print, screen and (max-width: 1250px) {
   div.wrapper {
     width:auto;
     margin:0;
   }
-
   header, section, footer {
     float:none;
     position:static;
     width:auto;
   }
-
   header {
     padding-right:400px;
   }
-
   section {
-    /*border:1px solid #e5e5e5;*/
-    /*border-width:1px 0;*/
     padding:20px 0;
     margin:0 0 20px;
   }
-}
+}*/
 
-@media print, screen and (max-width: 650px) {
-  body {
-    word-wrap:break-word;
-  }
-
-  header {
-    padding:0;
-  }
-
-  header ul, header p.view {
-    position:static;
-  }
-
-  pre, code {
-    word-wrap:normal;
-  }
-  section {
-      float: none;
-      padding: 50px;
-  }
+@media print, screen and (max-width: 1300px) {
+    body {
+        word-wrap:break-word;
+    }
+    header {
+        padding:0;
+    }
+    section {
+        float: none;
+        padding: 50px;
+        position: static;
+        padding-top: 350px;
+    }
+    footer {
+        position: inherit;
+    }
 }
