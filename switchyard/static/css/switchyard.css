@@ -12,11 +12,6 @@ canvas {
     -ms-user-select: none;
     min-width: 400px;
 }
-.chart-container {
-    width: 500px;
-    height: 500px;
-    margin: 5px;
-}
 .main-content {
     padding: 20px;
     min-width: 500px;
@@ -59,7 +54,8 @@ canvas {
     margin: 15px auto;
 }
 .sub-station {
-    width: auto;
     height: auto;
     margin-bottom: 40px;
+    /*margin-left: 80px;*/
+    float:right;
 }
