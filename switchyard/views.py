@@ -7,8 +7,6 @@ from flask import request
 import os
 import random
 
-import pandas as pd
-
 from . import app, model
 
 
@@ -53,5 +51,5 @@ def condense_affected_data():
         name = unit_details['station'].iloc[0]
         line = unit_details['line'].iloc[0]
         color = unit_details['color'].iloc[0]
-        details.append((name, line, color))
+        details.append((name, line, color, station))
     return details

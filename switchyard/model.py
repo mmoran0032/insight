@@ -26,15 +26,16 @@ class Model:
         affected_riders = [self.get_affected_station(u, d)
                            for u, d in zip(affected.index, affected.values)]
         self.affected_station_data = affected_riders
-        print(self.affected_station_data[0].head())
 
     def get_main_station(self, unit):
         return self.ridership.loc[:'2017-04-30', unit]
 
     def get_affected_station(self, unit, delta):
         riders = self.ridership[unit]
-        riders.loc['2017-05-01':] *= (1 + delta / riders.mean())
-        print(riders.index.get_loc('2017-05-01'))
+        pre = riders.loc[:'2017-04-30']
+        post = riders.loc['2017-05-01':].add(
+            -delta, fill_value=1)
+        riders = pd.concat([pre, post], axis=0)
         return riders
 
     def get_most_affected(self, unit, number=4):
@@ -42,7 +43,8 @@ class Model:
         station_riders = self.ridership[unit]
         mean_riders = station_riders.mean()
         delta_others = 1 / (effect / mean_riders)
-        return delta_others.sort_values().iloc[:number]
+        count = delta_others.notnull().sum()
+        return delta_others.sort_values().iloc[:number] / count
 
     def get_color(self, unit):
         sub_details = self.details[self.details.unit == unit]

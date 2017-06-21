@@ -136,7 +136,7 @@
         Chart.defaults.global.legend.display = false;
 
         // handle stations affected by closure
-        {% for name, line, color in affected %}
+        {% for name, line, color, riders in affected %}
         var e = document.getElementById("sub-{{loop.index}}");
         e.innerHTML = 'Station 1:<br />' + {{name|tojson}} +
             ' | ' + {{line|tojson}};
@@ -144,11 +144,11 @@
         var myChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: {{data.index.values.tolist()|tojson}},
+                labels: {{riders.index.values.tolist()|tojson}},
                 datasets: [{
                     label: 'Entering Passengers',
                     backgroundColor: {{color|tojson}},
-                    data: {{data.values.tolist()|tojson}},
+                    data: {{riders.values.tolist()|tojson}},
                 },]
             },
             options: {
@@ -160,7 +160,7 @@
                     }]
                 }
             },
-            lineAtIndex: [145]
+            lineAtIndex: [151]
         });
         {% endfor %}
 
