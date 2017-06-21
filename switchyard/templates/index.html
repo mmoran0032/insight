@@ -24,7 +24,7 @@
         <header>
             <h1 id="station-name">Selected station:</h1>
             <select id="dropdown-stations">
-                {% for unit, station, line in details %}
+                {% for unit, station, line, color in details %}
                 <option value="{{unit}}">{{station}} | {{line}}</option>
                 {% endfor %}
             </select>
@@ -43,15 +43,15 @@
                 Change: +0%
             </div>
             <div class="sub-station">
-                <h2 id="sub-2">Station 1</h2>
+                <h2 id="sub-2">Station 2</h2>
                 Change: +0%
             </div>
             <div class="sub-station">
-                <h2 id="sub-3">Station 1</h2>
+                <h2 id="sub-3">Station 3</h2>
                 Change: +0%
             </div>
             <div class="sub-station">
-                <h2 id="sub-4">Station 1</h2>
+                <h2 id="sub-4">Station 4</h2>
                 Change: +0%
             </div>
         </section>
@@ -90,24 +90,17 @@
             'Selected station:<br />' + station;
 
         Chart.defaults.global.legend.display = false;
-        // Chart.defaults.global.barPercentage = 1.0;
-        // Chart.defaults.global.categoryPercentage = 1.0;
         var ctx = document.getElementById("main-station").getContext('2d');
 
         var myChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: {{data.date.values.tolist()|tojson}},
+                labels: {{data.index.values.tolist()|tojson}},
                 datasets: [{
                     label: 'Entering Passengers',
-                    backgroundColor: '{{color}}',
-                    data: {{data.enter.values.tolist()|tojson}},
+                    backgroundColor: {{color|tojson}},
+                    data: {{data.values.tolist()|tojson}},
                 },]
-                // }, {
-                //     label: 'Leaving Passengers',
-                //     backgroundColor: "rgba(255,153,0,1)",
-                //     data: {{data.exit.values.tolist()|tojson}},
-                // }]
             },
             options: {
                 scales: {
