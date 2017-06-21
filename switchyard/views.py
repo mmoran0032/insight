@@ -8,22 +8,11 @@ import os
 import random
 
 import pandas as pd
-import psycopg2
-from sqlalchemy import create_engine
 
 from . import app, model
 
 
-user = 'mikemoran'
-host = 'localhost'
-dbname = 'fullstations'
-db = create_engine(f'postgres://{user}@{host}/{dbname}')
-conn = None
-conn = psycopg2.connect(database=dbname, user=user)
-model = model.Model(conn)
-
-filename = f'{app.static_folder}/data/line_station_color_details.csv'
-details_df = pd.read_csv(filename)
+model = model.Model()
 
 
 @app.route('/')
@@ -36,7 +25,8 @@ def index():
     model.update(unit)
     details = model.details.values.tolist()
     details.sort(key=lambda x: x[1])
-    color = pull_data(unit)
+    color = model.get_color(unit)
+    affected = condense_affected_data()
     logo_file = get_random_logo()
     return render_template('index.html',
                            unit=unit,
@@ -44,15 +34,24 @@ def index():
                            details=details,
                            logo_file=logo_file,
                            data=model.station_data,
+                           affected=affected,
                            color=color)
-
-
-def pull_data(unit):
-    color = details_df.color[details_df.unit == unit].values[0]
-    return color
 
 
 def get_random_logo():
     files = list(filter(lambda x: x.endswith('png'),
                         os.listdir(f'{app.static_folder}/images')))
     return random.choice(files)
+
+
+def condense_affected_data():
+    details = []
+    for station in model.affected_station_data:
+        # station contains two dataframes, one for before and after shock
+        unit = station.name
+        unit_details = model.details[model.details.unit == unit]
+        name = unit_details['station'].iloc[0]
+        line = unit_details['line'].iloc[0]
+        color = unit_details['color'].iloc[0]
+        details.append((name, line, color))
+    return details

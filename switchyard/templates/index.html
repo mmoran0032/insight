@@ -16,8 +16,8 @@
 
 <body>
     <div class="header-bar">
-        <!-- <img src="../static/images/{{logo_file}}" /> -->
-        <img src="../static/images/Switchyard.png" />
+        <img src="../static/images/{{logo_file}}" />
+        <!-- <img src="../static/images/Switchyard.png" /> -->
     </div>
 
     <div class="wrapper">
@@ -40,24 +40,25 @@
             <!-- main station content goes here -->
             <div class="sub-station">
                 <h2 id="sub-1">Station 1</h2>
-                Change: +0%
+                <canvas id="sub-chart-1"></canvas>
             </div>
             <div class="sub-station">
                 <h2 id="sub-2">Station 2</h2>
-                Change: +0%
+                <canvas id="sub-chart-2"></canvas>
             </div>
             <div class="sub-station">
                 <h2 id="sub-3">Station 3</h2>
-                Change: +0%
+                <canvas id="sub-chart-3"></canvas>
             </div>
             <div class="sub-station">
                 <h2 id="sub-4">Station 4</h2>
-                Change: +0%
+                <canvas id="sub-chart-4"></canvas>
             </div>
         </section>
 
         <footer>
-            <p><small>Created as part of my Insight Data Science (NYC Summer 2017) project</small></p>
+            <p><small>Created as part of my Insight Data Science
+                (NYC Summer 2017) project</small></p>
         </footer>
     </div>
     <script src="../static/js/scale.fix.js"></script>
@@ -79,6 +80,35 @@
         return r;
     };
 
+    const verticalLinePlugin = {
+        getLinePosition: function (chart, pointIndex) {
+            const meta = chart.getDatasetMeta(0); // first dataset is used to discover X coordinate of a point
+            const data = meta.data;
+            return data[pointIndex]._model.x;
+        },
+        renderVerticalLine: function (chartInstance, pointIndex) {
+            const lineLeftOffset = this.getLinePosition(chartInstance, pointIndex);
+            const scale = chartInstance.scales['y-axis-0'];
+            const context = chartInstance.chart.ctx;
+
+            // render vertical line
+            context.beginPath();
+            context.strokeStyle = '#000000';
+            context.moveTo(lineLeftOffset, scale.top);
+            context.lineTo(lineLeftOffset, scale.bottom);
+            context.stroke();
+        },
+
+        afterDatasetsDraw: function (chart, easing) {
+            if (chart.config.lineAtIndex) {
+                chart.config.lineAtIndex.forEach(
+                    pointIndex => this.renderVerticalLine(chart, pointIndex));
+            }
+        }
+    };
+
+    Chart.plugins.register(verticalLinePlugin);
+
     window.onload = function() {
         var QueryString = getRequests();
         var i = QueryString["i"];
@@ -87,10 +117,14 @@
         var station = e.options[i].text;
         document.getElementById("station-name").innerHTML =
             'Selected station:<br />' + station;
-
         Chart.defaults.global.legend.display = false;
-        var ctx = document.getElementById("main-station").getContext('2d');
 
+        // handle stations affected by closure
+        {% for name, line, color in affected %}
+        var e = document.getElementById("sub-{{loop.index}}");
+        e.innerHTML = 'Station 1:<br />' + {{name|tojson}} +
+            ' | ' + {{line|tojson}};
+        var ctx = document.getElementById("sub-chart-{{loop.index}}").getContext('2d');
         var myChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -109,7 +143,33 @@
                         barPercentage: 1.0
                     }]
                 }
-            }
+            },
+            lineAtIndex: [10],
+        });
+        {% endfor %}
+
+        // primary chart for selected station
+        var ctx = document.getElementById("main-station").getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{data.index.values.tolist()|tojson}},
+                datasets: [{
+                    label: 'Entering Passengers',
+                    backgroundColor: {{color|tojson}},
+                    data: {{data.values.tolist()|tojson}},
+                },]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        display: false,
+                        categoryPercentage: 1.0,
+                        barPercentage: 1.0
+                    }]
+                }
+            },
+            lineAtIndex: [10],
         });
     };
     </script>
