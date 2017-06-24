@@ -31,7 +31,46 @@ accomplished by the following:
     finding actual ridership through the individual stations yet, and this
     database may be removed following the next step.
 
-1.  Create the ridership tables for each station by running
+1.  Create the ridership tables for each station by running **notebook here**.
+    This file creates a new database called ``fullstations`` that contains a
+    separate table for each unit and a table called ``details`` that contains
+    the unit number, station name, lines serviced, and the line color.
+
+    For most stations, the entrance/exit information is processed by a single
+    unit. Larger stations (e.g. Grand Central, Penn Station, etc.) are serviced
+    by multiple units. Those disparate units could be combined into a single
+    super-unit table if desired, but that was not done for this work.
+
+1.  The station relationships can be built by running ``run_single.py``.
+    Currently, the values required to run the script (including the database
+    and usernames) are hard-coded into the file. Command line arguments will be
+    added in at a future date.
+
+    This script creates a file ``name_of_event.csv`` (where ``name_of_event``
+    is provided by the user) containing the "important" relations between the
+    station closure/opening and the others on the system. In cases where
+    multiple stations open or close at the same time, the relation is taken to
+    be the same for all stations based on the total change at the stations.
+
+
+Repository Structure
+--------------------
+
+-   The root directory contains the main processing scripts for the full
+    pipeline, this README, and any additional information required.
+
+-   ``exploratory_data_cleaning`` contains the notebooks that were used during
+    the initial stages of the work. They are currently unfiltered and unordered
+    and are taken as the "logbook" of my time at Insight working the problem.
+
+-   ``raw_data`` contains the pulled turnstile data plus the field descriptions
+    for the two types of files used by the MTA (pre-October 2014 and modern).
+    This directory is not checked in and should be created by the user to hold
+    the required data.
+
+-   ``processed_data`` contains the CSV files containing the relationship
+    between the station closure and openings to the other stations. These files
+    should be intelligently combined before use.
 
 
 Data Source
