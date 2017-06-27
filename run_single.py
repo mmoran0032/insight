@@ -8,8 +8,11 @@ import pymc3 as pm
 import psycopg2
 
 
+# mix of large stations and PATH data
 exclude = ['R010', 'R011', 'R012', 'R020', 'R021', 'R022', 'R031', 'R032',
-           'R033', 'R045', 'R046', 'R047', 'R048', 'R195', 'R293', 'R550']
+           'R033', 'R045', 'R046', 'R047', 'R048', 'R072', 'R195', 'R293',
+           'R328', 'R469', 'R535', 'R536', 'R541', 'R545', 'R547', 'R548',
+           'R549', 'R550', 'R552']
 
 
 def main(date_start='2016-11-15', date_stop='2017-02-15', shock='2017-01-01',
@@ -17,12 +20,10 @@ def main(date_start='2016-11-15', date_stop='2017-02-15', shock='2017-01-01',
          units_changed=['R570', 'R571', 'R572']):
     conn = create_connection()
     units = get_unit_list(conn)
-    units = [u for u in units if u not in exclude]  # removes major stations
     query = build_large_query(units, date_start, date_stop)
     data = resample(pull_data(query, conn))
     saved_traces = prediction(data)
-    shock_index = data.index.get_loc(shock)
-    filtered = filter_traces(units, saved_traces, shock_index)
+    filtered = filter_traces(units, saved_traces, data.index.get_loc(shock))
     create_and_save_dataframe(filtered, units_changed, name_of_event)
 
 
@@ -38,7 +39,8 @@ def get_unit_list(conn):
             order by unit asc;
     '''
     df = pd.read_sql(query, conn)
-    return df.unit.unique().tolist()
+    units = df.unit.unique().tolist()
+    return [u for u in units if u not in exclude]  # removes major stations
 
 
 def build_large_query(units, start, stop, include_exit=True):
@@ -68,6 +70,7 @@ def pull_data(query, conn):
     except TypeError:
         df.index = df.index.tz_localize('EST')
     df.index = pd.DatetimeIndex(df.index)
+    df.columns = df.columns.str.upper()
     return df
 
 
@@ -75,7 +78,17 @@ def resample(dataframe):
     df = dataframe.resample('1D', closed='right').sum()
     df['date'] = df.index.date
     df.set_index('date', inplace=True)
+    df.index = pd.DatetimeIndex(df.index)
     return df.iloc[1:]  # to remove the partial starting day
+
+
+def prediction(data):
+    saved_traces = {}
+    for station in data.columns:
+        df = data[station].fillna(0)
+        trace = get_model_results(df, sample=10000, tune=5000)
+        saved_traces[station] = trace[5000:]
+    return saved_traces
 
 
 def get_model_results(data, sample=8000, tune=4000):
@@ -92,37 +105,29 @@ def get_model_results(data, sample=8000, tune=4000):
     return trace
 
 
-def prediction(data):
-    saved_traces = []
-    for station in data.columns:
-        df = data[station].fillna(0)
-        trace = get_model_results(df, sample=10000, tune=5000)
-        saved_traces.append(trace[5000:])
-    return saved_traces
-
-
-def filter_traces(units, traces, shock):
-    filtered = []
-    for unit, trace in zip(units, traces):
+def filter_traces(traces, shock):
+    filtered = {}
+    for unit, trace in traces.items():
         before = trace.get_values('riders_before').mean()
         after = trace.get_values('riders_after').mean()
         date = trace.get_values('day_of_shock').mean()
         if ((shock - 3 < date < shock + 3) and  # day needs to be near actual
                 (np.abs(after - before) > 1000)):  # larger changes only
-            filtered.append((unit, after - before))
-        return filtered
+            filtered[unit] = after - before
+    return filtered
 
 
 def create_and_save_dataframe(data, changed, name):
-    units, values = list(zip(*data))
-    df = pd.DataFrame(values, index=units)
-    df.columns = changed.pop(0)
-    if len(changed) != 0:
-        for new_unit in changed:
-            df[new_unit] = df.iloc[:, 0]
+    df = pd.DataFrame(data, index=changed).transpose()
+    # handle "forward" change
     changed_riders = df.loc[changed].iloc[:, 0].sum()
     df = df / changed_riders
-    df.loc[changed] = 0
+    for unit in df.index:
+        if unit not in df.columns:
+            df[unit] = np.NaN
+    df = df[sorted(df.columns)]
+    df.loc[changed] = (1 - df[changed].transpose()) / len(changed)
+    df.loc[changed, changed] = 0
     df.to_csv(f'{name}.csv')
 
 
