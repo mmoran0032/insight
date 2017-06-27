@@ -3,22 +3,28 @@ Insight Project
 
 Work for my Insight project on the effect of openings and closures on the
 MTA subway in part and in whole, as part of my time during the summer 2017
-session in NYC.
+session in NYC. The work can also be explored graphically at
+`switchyard.site <https://switchyard.site>`_
+(`GitHub repo <https://github.com/mmoran0032/switchyard.site`_).
+
+
+Pipeline
+--------
 
 Running the entire pipeline and analysis from a clean directory is
 accomplished by the following:
 
-1.  Create the directories ``raw_data``, ``processed_data`` within the project
+#.  Create the directories ``raw_data``, ``processed_data`` within the project
     root directory. These directories are where the files pulled from the MTA
     and the files separated out by station will be kept.
 
-1.  Run ``pull_turnstile_data.py``, which will grab all of the full-week
+#.  Run ``pull_turnstile_data.py``, which will grab all of the full-week
     turnstile data files from the MTA and save them in a directory called
     ``raw_data``. The files generated before 2014-10-18 have a slightly
     different format than the current format, requiring a different parsing
     routine to be used.
 
-1.  Run ``combine_data.py`` loads the raw data into a PostgreSQL database
+#.  Run ``combine_data.py`` loads the raw data into a PostgreSQL database
     called ``raw_stations`` in a table called ``raw``. This defaults to only
     looking at those files generated since 2014-10-18 (which use the current
     format). To include all data, pass in the flag ``--all`` when running.
@@ -31,17 +37,18 @@ accomplished by the following:
     finding actual ridership through the individual stations yet, and this
     database may be removed following the next step.
 
-1.  Create the ridership tables for each station by running **notebook here**.
-    This file creates a new database called ``fullstations`` that contains a
-    separate table for each unit and a table called ``details`` that contains
-    the unit number, station name, lines serviced, and the line color.
+#.  Create the ridership tables for each station by running the
+    ``data_reduction.ipynb`` notebook, since the process is not currently in
+    a script. This file creates a new database called ``fullstations`` that
+    contains a separate table for each unit and a table called ``details`` that
+    contains the unit number, station name, lines serviced, and the line color.
 
     For most stations, the entrance/exit information is processed by a single
     unit. Larger stations (e.g. Grand Central, Penn Station, etc.) are serviced
     by multiple units. Those disparate units could be combined into a single
     super-unit table if desired, but that was not done for this work.
 
-1.  The station relationships can be built by running ``run_single.py``.
+#.  The station relationships can be built by running ``run_single.py``.
     Currently, the values required to run the script (including the database
     and usernames) are hard-coded into the file. Command line arguments will be
     added in at a future date.
