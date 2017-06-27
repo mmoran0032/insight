@@ -120,7 +120,7 @@ def filter_traces(traces, shock):
 def create_and_save_dataframe(data, changed, name):
     df = pd.DataFrame(data, index=changed).transpose()
     # handle "forward" change
-    changed_riders = df.loc[changed].iloc[:, 0].sum()
+    changed_riders = df.loc[changed].iloc[:, 0].sum() / len(changed)
     df = df / changed_riders
     for unit in df.index:
         if unit not in df.columns:
