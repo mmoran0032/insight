@@ -5,7 +5,7 @@ Work for my Insight project on the effect of openings and closures on the
 MTA subway in part and in whole, as part of my time during the summer 2017
 session in NYC. The work can also be explored graphically at
 `switchyard.site <https://switchyard.site>`_
-(`GitHub repo <https://github.com/mmoran0032/switchyard.site`_).
+(`GitHub repo <https://github.com/mmoran0032/switchyard.site>`_).
 
 
 Pipeline
