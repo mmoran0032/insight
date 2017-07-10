@@ -23,7 +23,7 @@ def main(date_start='2016-11-15', date_stop='2017-02-15', shock='2017-01-01',
     query = build_large_query(units, date_start, date_stop)
     data = resample(pull_data(query, conn))
     saved_traces = prediction(data)
-    filtered = filter_traces(units, saved_traces, data.index.get_loc(shock))
+    filtered = filter_traces(saved_traces, data.index.get_loc(shock))
     create_and_save_dataframe(filtered, units_changed, name_of_event)
 
 
@@ -94,10 +94,10 @@ def prediction(data):
 def get_model_results(data, sample=8000, tune=4000):
     with pm.Model() as model:
         mu = data.mean()
-        lambda_1 = pm.Poisson('riders_before', mu)
-        lambda_2 = pm.Poisson('riders_after', mu)
-        tau = pm.DiscreteUniform('day_of_shock', lower=0, upper=data.shape[0])
-        idx = np.arange(data.shape[0])  # Index
+        lambda_1 = pm.Exponential('riders_before', 1 / mu)
+        lambda_2 = pm.Exponential('riders_after', 1 / mu)
+        tau = pm.DiscreteUniform('day_of_shock', lower=0, upper=data.shape[0] - 1)
+        idx = np.arange(data.shape[0])
         lambda_ = pm.math.switch(tau >= idx, lambda_1, lambda_2)
         observation = pm.Poisson('observed', lambda_, observed=data.values)
         step = pm.Metropolis()
@@ -111,7 +111,7 @@ def filter_traces(traces, shock):
         before = trace.get_values('riders_before').mean()
         after = trace.get_values('riders_after').mean()
         date = trace.get_values('day_of_shock').mean()
-        if ((shock - 3 < date < shock + 3) and  # day needs to be near actual
+        if ((shock - 7 < date < shock + 7) and  # day needs to be near actual
                 (np.abs(after - before) > 1000)):  # larger changes only
             filtered[unit] = after - before
     return filtered
@@ -120,6 +120,7 @@ def filter_traces(traces, shock):
 def create_and_save_dataframe(data, changed, name):
     df = pd.DataFrame(data, index=changed).transpose()
     # handle "forward" change
+    # below fails... check notebook
     changed_riders = df.loc[changed].iloc[:, 0].sum() / len(changed)
     df = df / changed_riders
     for unit in df.index:
